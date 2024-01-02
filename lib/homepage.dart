@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:venuebooking/appbar.dart';
 import 'package:venuebooking/bookingpage.dart';
+import 'package:venuebooking/loginstatus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -75,7 +76,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => BookingPage(),
+              builder: (context) => LoginStatus(),
             ),
           ); // Handle FAB button press
         },
