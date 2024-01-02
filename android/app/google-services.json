@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "25725631197",
+    "project_id": "venue-booking-91336",
+    "storage_bucket": "venue-booking-91336.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25725631197:android:f1b8c57c0e83187d9ef934",
+        "android_client_info": {
+          "package_name": "com.example.venuebooking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "25725631197-l1n9bpa7b4j3rotarq6pkj667ni2uj3c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.venuebooking",
+            "certificate_hash": "5f6248bff789f731369a55c966d431fa48e7850b"
+          }
+        },
+        {
+          "client_id": "25725631197-1ubvie7h4lh0ilcdk4k5t7n843q6pho5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAad06XOxl9J5Nxu_n2CIdzdQWCiKcPTq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "25725631197-1ubvie7h4lh0ilcdk4k5t7n843q6pho5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "25725631197-gffqjslu6vb6e1ls5afpl4u96deg6l68.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.venuebooking.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
