@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:venuebooking/appbar.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class BookingPage extends StatefulWidget {
   BookingPage({super.key});
@@ -14,7 +16,19 @@ class _BookingPageState extends State<BookingPage> {
   DateTime time = DateTime.now();
   bool showDatePicker = false;
   bool showTimePicker = false;
-  String selectedVenue = 'AVT';
+  String selectedVenue = 'Audio Visual Theatre';
+  File? _image;
+
+  Future<void> _getImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +181,7 @@ class _BookingPageState extends State<BookingPage> {
                         });
                       },
                       items: <String>[
-                        'AVT',
+                        'Audio Visual Theatre',
                         'Seminar Hall',
                         'Auditorium',
                       ].map<DropdownMenuItem<String>>((String value) {
@@ -185,6 +199,39 @@ class _BookingPageState extends State<BookingPage> {
                     ),
                   ),
                 ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'Image Upload',
+                style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              GestureDetector(
+                onTap: _getImage,
+                child: Container(
+                  padding: EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  alignment: Alignment.center,
+                  child: _image == null
+                      ? Icon(
+                          Icons.add_circle_outline,
+                          size: 40,
+                          color: Colors.deepPurpleAccent,
+                        )
+                      : Image.file(
+                          _image!,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
+                ),
               ),
               //
               if (showDatePicker)
