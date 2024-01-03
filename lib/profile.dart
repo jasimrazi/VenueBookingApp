@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venuebooking/loginpage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -44,23 +45,42 @@ class _ProfilePageState extends State<ProfilePage> {
                   } else if (snapshot.hasError) {
                     return Text('Error loading user data');
                   } else if (!snapshot.hasData || snapshot.data == null) {
-                    return Text('User not signed in');
+                    return Column(
+                      children: [
+                        Text('User not signed in'),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
+                          },
+                          child: Text('Go back to Login'),
+                        ),
+                      ],
+                    );
                   } else {
                     User user = snapshot.data!;
-                    return Text(
-                      '${user.displayName}',
-                      style: TextStyle(fontSize: 24),
+                    return Column(
+                      children: [
+                        Text(
+                          '${user.displayName}',
+                          style: TextStyle(fontSize: 24),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await _auth.signOut();
+                            Navigator.pop(
+                              context,
+                            ); // Pop the ProfilePage off the navigation stack
+                          },
+                          child: Text('Log Out'),
+                        ),
+                      ],
                     );
                   }
                 },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await _auth.signOut();
-                  Navigator.pop(
-                      context); // Pop the ProfilePage off the navigation stack
-                },
-                child: Text('Log Out'),
               ),
             ],
           ),

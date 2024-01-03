@@ -14,115 +14,215 @@ class _BookingPageState extends State<BookingPage> {
   DateTime time = DateTime.now();
   bool showDatePicker = false;
   bool showTimePicker = false;
+  String selectedVenue = 'AVT';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: MyAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Event Name",
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showDatePicker = false;
+          showTimePicker = false;
+        });
+      },
+      child: Scaffold(
+        appBar: MyAppBar(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Event Name',
+                style: TextStyle(fontSize: 12, color: Colors.deepPurple),
               ),
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
+              SizedBox(
+                height: 8,
+              ),
+              TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 10.0,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Date',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.deepPurple),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showDatePicker = !showDatePicker;
+                              showTimePicker = false;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black38),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${DateFormat('dd MMM yyyy').format(time)}',
+                              style: TextStyle(
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.deepPurpleAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Time',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.deepPurple),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showTimePicker = !showTimePicker;
+                              showDatePicker = false;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black38),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${DateFormat('hh:mm a').format(time)}',
+                              style: TextStyle(
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.deepPurpleAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Venue',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black38),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    alignment: Alignment.center,
+                    child: DropdownButton<String>(
+                      value: selectedVenue,
+                      dropdownColor: Colors.deepPurpleAccent,
+                      onChanged: (String? newValue) {
                         setState(() {
-                          showDatePicker = !showDatePicker;
+                          selectedVenue = newValue!;
                         });
                       },
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        // height: 100.0,
-                        color: Colors.deepPurple,
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${DateFormat('dd MMM yyyy').format(time)}',
-                          style: TextStyle(
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                        ),
+                      items: <String>[
+                        'AVT',
+                        'Seminar Hall',
+                        'Auditorium',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      icon: Icon(
+                        Icons.unfold_more,
+                        color: Colors.deepPurpleAccent,
                       ),
+                      iconSize: 24,
+                      underline: SizedBox(),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          showTimePicker = !showTimePicker;
-                        });
-                      },
-                      child: Container(
-                        // height: 100.0,
-                        padding: EdgeInsets.all(10),
-
-                        color: Colors.deepPurple,
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${DateFormat('dd MMM yyyy').format(time)}',
-                          style: TextStyle(
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                        ),
-                      ),
+                  ),
+                ],
+              ),
+              //
+              if (showDatePicker)
+                SizedBox(
+                  height: 250,
+                  child: ScrollDateTimePicker(
+                    itemExtent: 54,
+                    infiniteScroll: true,
+                    dateOption: DateTimePickerOption(
+                      dateFormat: DateFormat('yyyyMMMdd'),
+                      minDate: DateTime(2000, 6),
+                      maxDate: DateTime(2024, 6),
+                      initialDate: time,
                     ),
-                  ],
-                ),
-              ],
-            ),
-            //
-            if (showDatePicker)
-              SizedBox(
-                height: 250,
-                child: ScrollDateTimePicker(
-                  itemExtent: 54,
-                  infiniteScroll: true,
-                  dateOption: DateTimePickerOption(
-                    dateFormat: DateFormat('yyyyMMMdd'),
-                    minDate: DateTime(2000, 6),
-                    maxDate: DateTime(2024, 6),
-                    initialDate: time,
+                    onChange: (datetime) => setState(() {
+                      time = datetime;
+                    }),
                   ),
-                  onChange: (datetime) => setState(() {
-                    time = datetime;
-                  }),
                 ),
-              ),
-            if (showTimePicker)
-              SizedBox(
-                height: 250,
-                child: ScrollDateTimePicker(
-                  itemExtent: 54,
-                  infiniteScroll: true,
-                  dateOption: DateTimePickerOption(
-                    dateFormat: DateFormat('hhmm'),
-                    
-                    minDate: DateTime(2000, 6),
-                    maxDate: DateTime(2024, 6),
-                    initialDate: time,
+              if (showTimePicker)
+                SizedBox(
+                  height: 250,
+                  child: ScrollDateTimePicker(
+                    itemExtent: 54,
+                    infiniteScroll: true,
+                    dateOption: DateTimePickerOption(
+                      dateFormat: DateFormat('hh:mm a'),
+                      minDate: DateTime(2000, 6),
+                      maxDate: DateTime(2024, 6),
+                      initialDate: time,
+                    ),
+                    onChange: (datetime) => setState(() {
+                      time = datetime;
+                    }),
                   ),
-                  onChange: (datetime) => setState(() {
-                    time = datetime;
-                  }),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

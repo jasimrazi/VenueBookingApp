@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:venuebooking/appbar.dart';
-import 'package:venuebooking/bookingpage.dart';
 import 'package:venuebooking/loginstatus.dart';
 
 class HomePage extends StatefulWidget {
