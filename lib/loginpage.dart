@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:venuebooking/appbar.dart';
 import 'package:venuebooking/bookingpage.dart';
-import 'package:venuebooking/forgotpassword.dart';
+import 'package:venuebooking/registerpage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -216,11 +216,11 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ForgotPassword(),
+                          builder: (context) => RegisterPage(),
                         )),
                     child: Text(
-                      "Forgot password?",
-                      style: TextStyle(fontSize: 13),
+                      "Register Now",
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                   ElevatedButton(
