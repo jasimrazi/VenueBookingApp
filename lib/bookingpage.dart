@@ -95,7 +95,7 @@ class _BookingPageState extends State<BookingPage> {
             'imageURL': _image != null ? await _uploadImage(userId) : null,
             'userId': userId,
             'userName': userName,
-            'state': 'Pending',
+            'state': 'pending',
             'timestamp': timestamp
           });
 
@@ -118,6 +118,12 @@ class _BookingPageState extends State<BookingPage> {
         });
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _eventNameController.dispose();
+    super.dispose();
   }
 
   @override
