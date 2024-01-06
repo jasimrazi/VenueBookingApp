@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:venuebooking/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:venuebooking/loginpage.dart';
 import 'firebase_options.dart';
 
 void main() async {
