@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venuebooking/loginpage.dart';
+import 'package:venuebooking/homepage.dart'; // Import the HomePage
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -71,9 +72,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         ElevatedButton(
                           onPressed: () async {
                             await _auth.signOut();
-                            Navigator.pop(
+
+                            // Clear the user data in HomePage by popping the route
+                            // and adding a local history entry to trigger initState
+                            Navigator.pushReplacement(
                               context,
-                            ); // Pop the ProfilePage off the navigation stack
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            );
                           },
                           child: Text('Log Out'),
                         ),

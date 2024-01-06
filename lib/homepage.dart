@@ -19,34 +19,39 @@ class _HomePageState extends State<HomePage> {
 
   // Fetch bookings for the current user
   Future<void> _fetchBookings() async {
+    print('Fetching bookings...');
     User? user = _auth.currentUser;
 
     if (user != null) {
       String userId = user.uid;
 
-      _firestore
+      await _firestore
           .collection('Bookings')
           .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
-          .snapshots()
-          .listen((QuerySnapshot querySnapshot) {
+          .get()
+          .then((QuerySnapshot querySnapshot) {
         setState(() {
           bookings = querySnapshot.docs;
         });
       });
     } else {
       print('No user signed in.');
+      // Clear the bookings list when no user is signed in
+      setState(() {
+        bookings = [];
+      });
     }
   }
 
-  // Call this method in your initState or wherever you want to fetch data
   @override
   void initState() {
     super.initState();
     _fetchBookings();
   }
 
-  // Helper method to get status color based on status string
+  
+
   BoxDecoration _getStatusBoxDecoration(String? status) {
     Color borderColor;
     Color fillColor;
@@ -91,13 +96,21 @@ class _HomePageState extends State<HomePage> {
                   onRefresh: _fetchBookings,
                   child: bookings.isEmpty
                       ? Center(
-                          child: Text(
-                            'No bookings available.',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
+                          child: _auth.currentUser == null
+                              ? Text(
+                                  'Login to see your bookings',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              : Text(
+                                  'No bookings available.',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                         )
                       : ListView.builder(
                           physics: BouncingScrollPhysics(),
@@ -214,13 +227,15 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => LoginStatus(),
             ),
-          ); // Handle FAB button press
+          );
+          // Fetch bookings again after the user logs in or out
+          _fetchBookings();
         },
         label: Text(
           'Book',
