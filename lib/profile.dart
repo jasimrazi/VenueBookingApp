@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venuebooking/appbar.dart';
+import 'package:venuebooking/homepage.dart';
 import 'package:venuebooking/loginpage.dart';
-import 'package:venuebooking/homepage.dart'; // Import the HomePage
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -28,6 +29,10 @@ class _ProfilePageState extends State<ProfilePage> {
       user = await _auth.currentUser; // Reload user data
     }
     return user;
+  }
+
+  String _extractUsername(String email) {
+    return email.split('@').first;
   }
 
   @override
@@ -63,10 +68,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   } else {
                     User user = snapshot.data!;
+                    String username =
+                        _extractUsername(user.email ?? "default@default.com");
+
                     return Column(
                       children: [
                         Text(
-                          '${user.displayName}',
+                          '$username',
                           style: TextStyle(fontSize: 24),
                         ),
                         ElevatedButton(
