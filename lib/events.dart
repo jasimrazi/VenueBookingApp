@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class AllEvents extends StatefulWidget {
   final String eventId;
@@ -34,19 +36,10 @@ class _AllEventsState extends State<AllEvents> {
       setState(() {
         eventData = eventSnapshot.data() as Map<String, dynamic>;
       });
-
-      // Print the whole eventData for debugging
-      print('Event Data: $eventData');
-
-      // Print the image URL to the console
-      if (eventData['imageUrl'] != null) {
-        print('Image URL: ${eventData['imageUrl']}');
-      }
     } catch (e) {
       print('Error fetching event details: $e');
     }
   }
-
 
   Future<void> _updateEventState(String newState) async {
     try {
@@ -79,19 +72,40 @@ class _AllEventsState extends State<AllEvents> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Check if imageUrl is not null before displaying the image
-                  if (eventData['imageUrl'] != null)
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                      height: 400,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(11),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                            eventData['Image URL'] ?? '',
+                  if (eventData['imageURL'] != null)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Scaffold(
+                              body: PhotoViewGallery.builder(
+                                itemCount: 1,
+                                builder: (context, index) {
+                                  return PhotoViewGalleryPageOptions(
+                                    imageProvider: NetworkImage(
+                                        eventData['imageURL'] ?? ''),
+                                  );
+                                },
+                                scrollPhysics: BouncingScrollPhysics(),
+                                backgroundDecoration: BoxDecoration(
+                                  color: Colors.black,
+                                ),
+                                pageController: PageController(),
+                              ),
+                            ),
                           ),
-                          fit: BoxFit.cover,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                        height: 400,
+                        width: double.infinity,
+                        child: PhotoView(
+                          imageProvider: NetworkImage(
+                            eventData['imageURL'] ?? '',
+                          ),
                         ),
                       ),
                     ),

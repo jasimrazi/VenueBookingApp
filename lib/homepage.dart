@@ -101,16 +101,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchBookings();
-  }
-
   BoxDecoration _getStatusBoxDecoration(String? status) {
     Color borderColor;
     Color fillColor;
-    double borderWidth = 1.5;
+    double borderWidth = 1;
 
     switch (status) {
       case 'pending':
@@ -138,173 +132,174 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchBookings();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(),
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _fetchBookings,
-                  child: isLoading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.deepPurpleAccent,
-                          ),
-                        )
-                      : bookings.isEmpty
-                          ? Center(
-                              child: _auth.currentUser == null
-                                  ? Text(
-                                      'Login to see your bookings',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    )
-                                  : Text(
-                                      isAdmin
-                                          ? 'No bookings available.'
-                                          : 'No user-specific bookings available.',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _fetchBookings,
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.deepPurpleAccent,
+                        ),
+                      )
+                    : bookings.isEmpty
+                        ? Center(
+                            child: _auth.currentUser == null
+                                ? Text(
+                                    'Login to see your bookings',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
                                     ),
-                            )
-                          : ListView.builder(
-                              physics: BouncingScrollPhysics(),
-                              itemCount: bookings.length,
-                              itemBuilder: (context, index) {
-                                var booking = bookings[index].data()
-                                    as Map<String, dynamic>;
+                                  )
+                                : Text(
+                                    isAdmin
+                                        ? 'No bookings available.'
+                                        : 'No user-specific bookings available.',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                          )
+                        : ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            itemCount: bookings.length,
+                            itemBuilder: (context, index) {
+                              var booking = bookings[index].data()
+                                  as Map<String, dynamic>;
 
-                                return Dismissible(
-                                  key: Key(bookings[index].id),
-                                  confirmDismiss:
-                                      (DismissDirection direction) async {
-                                    return await showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text("Confirm"),
-                                          content: const Text(
-                                            "Are you sure you want to remove this booking?",
+                              return Dismissible(
+                                key: Key(bookings[index].id),
+                                confirmDismiss:
+                                    (DismissDirection direction) async {
+                                  return await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Confirm"),
+                                        content: const Text(
+                                          "Are you sure you want to remove this booking?",
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: const Text(
+                                              "Remove",
+                                              style: TextStyle(
+                                                  color: Colors.redAccent),
+                                            ),
                                           ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(true),
-                                              child: const Text(
-                                                "Remove",
-                                                style: TextStyle(
-                                                    color: Colors.redAccent),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child: const Text("Cancel"),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  onDismissed: (direction) async {
-                                    try {
-                                      await _firestore
-                                          .collection('Bookings')
-                                          .doc(bookings[index].id)
-                                          .delete();
-                                    } catch (e) {
-                                      print('Error deleting document: $e');
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: const Text("Cancel"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                onDismissed: (direction) async {
+                                  try {
+                                    await _firestore
+                                        .collection('Bookings')
+                                        .doc(bookings[index].id)
+                                        .delete();
+                                  } catch (e) {
+                                    print('Error deleting document: $e');
+                                  }
+                                },
+                                background: Container(
+                                  color: Colors.red,
+                                  alignment: Alignment.centerRight,
+                                  padding: EdgeInsets.only(right: 20.0),
+                                  child: Icon(
+                                    Icons.delete_sweep,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (isAdmin) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AllEvents(
+                                            eventId: bookings[index].id,
+                                            isAdmin: isAdmin,
+                                          ),
+                                        ),
+                                      );
                                     }
                                   },
-                                  background: Container(
-                                    color: Colors.red,
-                                    alignment: Alignment.centerRight,
-                                    padding: EdgeInsets.only(right: 20.0),
-                                    child: Icon(
-                                      Icons.delete_sweep,
+                                  child: Container(
+                                    margin: EdgeInsets.all(8.0),
+                                    padding: EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
                                       color: Colors.white,
+                                      border:
+                                          Border.all(color: Colors.deepPurple),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if (isAdmin) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AllEvents(
-                                              eventId: bookings[index].id,
-                                              isAdmin: isAdmin,
-                                              
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              booking['eventName'] ?? '',
+                                              style: TextStyle(fontSize: 18),
                                             ),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.all(8.0),
-                                      padding: EdgeInsets.all(16.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                            color: Colors.deepPurple),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                booking['eventName'] ?? '',
-                                                style: TextStyle(fontSize: 18),
-                                              ),
-                                              Text(
-                                                booking['venue'] ?? '',
-                                                style: TextStyle(
-                                                    color: Color(0xffadadad)),
-                                              ),
-                                            ],
-                                          ),
-                                          Container(
-                                            width: 80,
-                                            padding: EdgeInsets.all(8.0),
-                                            alignment: Alignment.center,
-                                            decoration: _getStatusBoxDecoration(
-                                                booking['state']),
-                                            child: Text(
-                                              booking['state']?.toUpperCase() ??
-                                                  'UNKNOWN',
+                                            Text(
+                                              booking['venue'] ?? '',
                                               style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black87,
-                                              ),
+                                                  color: Color(0xffadadad)),
                                             ),
-                                          )
-                                        ],
-                                      ),
+                                          ],
+                                        ),
+                                        Container(
+                                          width: 80,
+                                          padding: EdgeInsets.all(8.0),
+                                          alignment: Alignment.center,
+                                          decoration: _getStatusBoxDecoration(
+                                              booking['state']),
+                                          child: Text(
+                                            booking['state']?.toUpperCase() ??
+                                                'UNKNOWN',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                ),
+                                ),
+                              );
+                            },
+                          ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
