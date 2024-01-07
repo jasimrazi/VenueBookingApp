@@ -19,13 +19,27 @@ class _LoginPageState extends State<LoginPage> {
   bool _loading = false;
   bool _isMounted = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 3),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   Future<void> _handleSignIn() async {
@@ -40,6 +54,11 @@ class _LoginPageState extends State<LoginPage> {
 
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
+
+      if (!_isMounted) {
+        return; // Check again after the asynchronous operation
+      }
+
       if (googleSignInAccount == null) {
         // User canceled the sign-in
         _showSnackBar('Sign-in canceled');
@@ -137,18 +156,6 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _isMounted = true;
-  }
-
-  @override
-  void dispose() {
-    _isMounted = false;
-    super.dispose();
   }
 
   @override
