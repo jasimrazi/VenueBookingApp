@@ -52,7 +52,8 @@ class _AllEventsState extends State<AllEvents> {
       await _fetchEventDetails();
 
       // Navigate back to the homepage
-      Navigator.pop(context);
+      Navigator.pop(
+          context, true); // Pass true to indicate that a refresh is needed
     } catch (e) {
       print('Error updating event state: $e');
     }
