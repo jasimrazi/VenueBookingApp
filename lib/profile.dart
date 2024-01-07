@@ -92,6 +92,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           },
                           child: Text('Log Out'),
                         ),
+                        TextButton(onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            );
+                        }, child: Text('Back to HomePage'),)
                       ],
                     );
                   }

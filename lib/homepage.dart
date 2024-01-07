@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:venuebooking/appbar.dart';
-import 'package:venuebooking/loginstatus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venuebooking/appbar.dart';
+import 'package:venuebooking/events.dart';
+import 'package:venuebooking/loginstatus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,21 +18,52 @@ class _HomePageState extends State<HomePage> {
 
   List<DocumentSnapshot> bookings = [];
   bool isLoading = false;
+  bool isAdmin = false;
 
-  // Fetch bookings for the current user
+  // Check if the user is admin
+  Future<bool> _checkIfAdmin() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      String userId = user.email!;
+
+      try {
+        DocumentSnapshot userSnapshot =
+            await _firestore.collection('users').doc(userId).get();
+
+        if (userSnapshot.exists) {
+          bool userIsAdmin = userSnapshot['isAdmin'] ?? false;
+          print('User is admin: $userIsAdmin');
+          return userIsAdmin;
+        } else {
+          print('User document exists but isAdmin field is missing or null');
+          return false;
+        }
+      } catch (e) {
+        print('Error fetching user document: $e');
+        return false;
+      }
+    } else {
+      print('No user signed in.');
+      return false;
+    }
+  }
+
+  // Fetch bookings for the current user or all bookings if the user is an admin
   Future<void> _fetchBookings() async {
     setState(() {
       isLoading = true;
     });
 
-    User? user = _auth.currentUser;
+    // Check if the user is an admin
+    isAdmin = await _checkIfAdmin();
 
-    if (user != null) {
-      String userId = user.uid;
+    print('isAdmin: $isAdmin');
 
+    if (isAdmin) {
+      // Fetch all bookings for admins
       await _firestore
           .collection('Bookings')
-          .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
           .get()
           .then((QuerySnapshot querySnapshot) {
@@ -41,12 +73,31 @@ class _HomePageState extends State<HomePage> {
         });
       });
     } else {
-      print('No user signed in.');
-      // Clear the bookings list when no user is signed in
-      setState(() {
-        bookings = [];
-        isLoading = false;
-      });
+      // Fetch user-specific bookings
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        String userId = user.uid;
+
+        await _firestore
+            .collection('Bookings')
+            .where('userId', isEqualTo: userId)
+            .orderBy('timestamp', descending: true)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          setState(() {
+            bookings = querySnapshot.docs;
+            isLoading = false;
+          });
+        });
+      } else {
+        print('No user signed in.');
+        // Clear the bookings list when no user is signed in
+        setState(() {
+          bookings = [];
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -115,7 +166,9 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     )
                                   : Text(
-                                      'No bookings available.',
+                                      isAdmin
+                                          ? 'No bookings available.'
+                                          : 'No user-specific bookings available.',
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Colors.grey,
@@ -130,8 +183,7 @@ class _HomePageState extends State<HomePage> {
                                     as Map<String, dynamic>;
 
                                 return Dismissible(
-                                  key: Key(bookings[index]
-                                      .id), // Ensure a unique key
+                                  key: Key(bookings[index].id),
                                   confirmDismiss:
                                       (DismissDirection direction) async {
                                     return await showDialog(
@@ -140,7 +192,8 @@ class _HomePageState extends State<HomePage> {
                                         return AlertDialog(
                                           title: const Text("Confirm"),
                                           content: const Text(
-                                              "Are you sure you want to remove this booking?"),
+                                            "Are you sure you want to remove this booking?",
+                                          ),
                                           actions: <Widget>[
                                             TextButton(
                                               onPressed: () =>
@@ -164,7 +217,6 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                   onDismissed: (direction) async {
-                                    // Handle the dismissal here, e.g., delete from Firebase
                                     try {
                                       await _firestore
                                           .collection('Bookings')
@@ -172,7 +224,6 @@ class _HomePageState extends State<HomePage> {
                                           .delete();
                                     } catch (e) {
                                       print('Error deleting document: $e');
-                                      // Handle error (e.g., show a snackbar)
                                     }
                                   },
                                   background: Container(
@@ -184,50 +235,67 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  child: Container(
-                                    margin: EdgeInsets.all(8.0),
-                                    padding: EdgeInsets.all(16.0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border:
-                                          Border.all(color: Colors.deepPurple),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              booking['eventName'] ?? '',
-                                              style: TextStyle(fontSize: 18),
-                                            ),
-                                            Text(
-                                              booking['venue'] ?? '',
-                                              style: TextStyle(
-                                                  color: Color(0xffadadad)),
-                                            ),
-                                          ],
-                                        ),
-                                        Container(
-                                          width: 80,
-                                          padding: EdgeInsets.all(8.0),
-                                          alignment: Alignment.center,
-                                          decoration: _getStatusBoxDecoration(
-                                              booking['state']),
-                                          child: Text(
-                                            booking['state']?.toUpperCase() ??
-                                                'UNKNOWN',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black87,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (isAdmin) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AllEvents(
+                                              eventId: bookings[index].id,
+                                              isAdmin: isAdmin,
+                                              
                                             ),
                                           ),
-                                        )
-                                      ],
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.all(16.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                            color: Colors.deepPurple),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                booking['eventName'] ?? '',
+                                                style: TextStyle(fontSize: 18),
+                                              ),
+                                              Text(
+                                                booking['venue'] ?? '',
+                                                style: TextStyle(
+                                                    color: Color(0xffadadad)),
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            width: 80,
+                                            padding: EdgeInsets.all(8.0),
+                                            alignment: Alignment.center,
+                                            decoration: _getStatusBoxDecoration(
+                                                booking['state']),
+                                            child: Text(
+                                              booking['state']?.toUpperCase() ??
+                                                  'UNKNOWN',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );

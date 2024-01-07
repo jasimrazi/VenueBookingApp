@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleSignIn() async {
     try {
-      if (!mounted) {
+      if (!_isMounted) {
         return; // Check if the widget is still mounted
       }
 
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           await _auth.signInWithCredential(credential);
       final User? user = authResult.user;
 
-      if (user != null && mounted) {
+      if (user != null && _isMounted) {
         // User signed in successfully
         _showSnackBar('Signed in as ${user.displayName}');
 
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Google Sign-In Error: $error');
       _showSnackBar('Error during sign-in');
     } finally {
-      if (mounted) {
+      if (_isMounted) {
         setState(() {
           _loading = false;
         });
@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
-      if (!mounted) {
+      if (!_isMounted) {
         return; // Check if the widget is still mounted
       }
 
@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       User? user = userCredential.user;
-      if (user != null && mounted) {
+      if (user != null && _isMounted) {
         // User signed in successfully
         _showSnackBar('Signed in as ${user.email}');
 
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Email/Password Sign-In Error: $error');
       _showSnackBar('Error during sign-in');
     } finally {
-      if (mounted) {
+      if (_isMounted) {
         setState(() {
           _loading = false;
         });

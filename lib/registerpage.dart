@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venuebooking/appbar.dart';
 import 'package:venuebooking/bookingpage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key});
@@ -16,6 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _loading = false;
 
   String _emailError = '';
@@ -66,6 +68,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
       User? user = userCredential.user;
       if (user != null) {
+        // Store user data in Firestore
+        await _storeUserInFirestore(emailController.text);
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registration successful for ${user.email}'),
@@ -109,6 +114,31 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       }
     }
+  }
+
+  Future<void> _storeUserInFirestore(String email) async {
+    // Set isAdmin to false by default
+    bool isAdmin = false;
+
+    // Check if the user should have admin access based on your criteria
+    if (_checkIfUserIsAdmin(email)) {
+      isAdmin = true;
+    }
+
+    // Encode the email to create a valid Firestore document ID
+    String encodedEmail = Uri.encodeFull(email);
+
+    await _firestore.collection('users').doc(encodedEmail).set({
+      'email': email,
+      'isAdmin': isAdmin,
+    });
+  }
+
+
+  bool _checkIfUserIsAdmin(String email) {
+    // Implement your logic to determine if the user should be an admin
+    // For example, check if the email domain is admin@example.com
+    return email.endsWith('@admin.com');
   }
 
   @override
