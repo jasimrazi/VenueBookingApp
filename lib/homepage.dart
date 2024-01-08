@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                             child: GestureDetector(
                               onTap: () {
                                 if (isAdmin) {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => AllEvents(

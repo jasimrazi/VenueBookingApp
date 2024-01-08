@@ -56,14 +56,14 @@ class _AllEventsState extends State<AllEvents> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              HomePage(), // Replace 'YourHomePage()' with the actual class of your homepage
+          builder: (context) => HomePage(),
         ),
       );
     } catch (e) {
       print('Error updating event state: $e');
     }
   }
+
 
 
   @override
