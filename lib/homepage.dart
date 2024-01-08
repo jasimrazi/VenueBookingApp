@@ -20,6 +20,26 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false;
   bool isAdmin = false;
 
+  Color _getStatusBorderColor(String? status) {
+    Color borderColor;
+
+    switch (status) {
+      case 'pending':
+        borderColor = Color(0xffFFE000); // Yellow
+        break;
+      case 'approved':
+        borderColor = Color(0xff23F420); // Green
+        break;
+      case 'declined':
+        borderColor = Color(0xffFF0505); // Red
+        break;
+      default:
+        borderColor = Colors.grey;
+    }
+
+    return borderColor;
+  }
+
   // Check if the user is admin
   Future<bool> _checkIfAdmin() async {
     User? user = _auth.currentUser;
@@ -99,36 +119,6 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
-  }
-
-  BoxDecoration _getStatusBoxDecoration(String? status) {
-    Color borderColor;
-    Color fillColor;
-    double borderWidth = 1;
-
-    switch (status) {
-      case 'pending':
-        borderColor = Color(0xffFFE000); // Yellow
-        fillColor = Color(0xffFFF39F); // Yellow
-        break;
-      case 'approved':
-        borderColor = Color(0xff23F420); // Green
-        fillColor = Color(0xff92FF91); // Green
-        break;
-      case 'declined':
-        borderColor = Color(0xffFF0505); // Red
-        fillColor = Color(0xffFF8585); // Red
-        break;
-      default:
-        borderColor = Colors.grey;
-        fillColor = Colors.grey;
-    }
-
-    return BoxDecoration(
-      border: Border.all(color: borderColor, width: borderWidth),
-      borderRadius: BorderRadius.circular(8.0),
-      color: fillColor,
-    );
   }
 
   @override
@@ -249,7 +239,10 @@ class _HomePageState extends State<HomePage> {
                                 padding: EdgeInsets.all(16.0),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  border: Border.all(color: Colors.deepPurple),
+                                  border: Border.all(
+                                    color: Colors.deepPurple,
+                                    width: 1,
+                                  ),
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: Row(
@@ -272,17 +265,25 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     Container(
-                                      width: 80,
+                                      width: 90,
                                       padding: EdgeInsets.all(8.0),
                                       alignment: Alignment.center,
-                                      decoration: _getStatusBoxDecoration(
-                                          booking['state']),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: _getStatusBorderColor(
+                                              booking['state']),
+                                          width: 1,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
                                       child: Text(
                                         booking['state']?.toUpperCase() ??
                                             'UNKNOWN',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.black87,
+                                          color: _getStatusBorderColor(
+                                              booking['state']),
                                         ),
                                       ),
                                     )

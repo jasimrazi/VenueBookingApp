@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:venuebooking/homepage.dart';
 
 class AllEvents extends StatefulWidget {
   final String eventId;
@@ -51,13 +52,19 @@ class _AllEventsState extends State<AllEvents> {
       // Reload event details after updating state
       await _fetchEventDetails();
 
-      // Navigate back to the homepage
-      Navigator.pop(
-          context, true); // Pass true to indicate that a refresh is needed
+      // Navigate back to the homepage and replace the current page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              HomePage(), // Replace 'YourHomePage()' with the actual class of your homepage
+        ),
+      );
     } catch (e) {
       print('Error updating event state: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -69,81 +76,164 @@ class _AllEventsState extends State<AllEvents> {
           ? Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Check if imageUrl is not null before displaying the image
-                  if (eventData['imageURL'] != null)
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                              body: PhotoViewGallery.builder(
-                                itemCount: 1,
-                                builder: (context, index) {
-                                  return PhotoViewGalleryPageOptions(
-                                    imageProvider: NetworkImage(
-                                        eventData['imageURL'] ?? ''),
-                                  );
-                                },
-                                scrollPhysics: BouncingScrollPhysics(),
-                                backgroundDecoration: BoxDecoration(
-                                  color: Colors.black,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Check if imageUrl is not null before displaying the image
+                    if (eventData['imageURL'] != null)
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                body: PhotoViewGallery.builder(
+                                  itemCount: 1,
+                                  builder: (context, index) {
+                                    return PhotoViewGalleryPageOptions(
+                                      imageProvider: NetworkImage(
+                                          eventData['imageURL'] ?? ''),
+                                    );
+                                  },
+                                  scrollPhysics: BouncingScrollPhysics(),
+                                  backgroundDecoration: BoxDecoration(
+                                    color: Colors.black,
+                                  ),
+                                  pageController: PageController(),
                                 ),
-                                pageController: PageController(),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                        height: 400,
-                        width: double.infinity,
-                        child: PhotoView(
-                          imageProvider: NetworkImage(
-                            eventData['imageURL'] ?? '',
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          height: 400,
+                          width: double.infinity,
+                          child: PhotoView(
+                            imageProvider: NetworkImage(
+                              eventData['imageURL'] ?? '',
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                  SizedBox(height: 16),
-                  Text(
-                    'Event Name: ${eventData['eventName']}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text('Venue: ${eventData['venue']}'),
-                  SizedBox(height: 8),
-                  Text('Date: ${eventData['date']}'),
-                  SizedBox(height: 8),
-                  Text('Time: ${eventData['time']}'),
-                  SizedBox(height: 16),
-                  if (widget.isAdmin)
+                    SizedBox(height: 16),
+                    Text(
+                      '${eventData['eventName']}',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
                     Row(
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            // Accept booking
-                            _updateEventState('approved');
-                          },
-                          child: Text('Accept'),
+                        Icon(
+                          Icons.location_on,
+                          color: Colors.black38,
                         ),
-                        SizedBox(width: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Decline booking
-                            _updateEventState('declined');
-                          },
-                          child: Text('Decline'),
+                        Text(' ${eventData['venue']}',
+                            style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month,
+                          color: Colors.black38,
+                          size: 20,
+                        ),
+                        Text(
+                          ' ${eventData['date']}',
+                          style: TextStyle(fontSize: 16),
                         ),
                       ],
                     ),
-                ],
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule,
+                          color: Colors.black38,
+                        ),
+                        Text(' ${eventData['time']}',
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 16),
+                      ],
+                    ),
+                    SizedBox(height: 32),
+                    if (widget.isAdmin)
+                      Column(
+                        children: [
+                          TextButton(
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      25.0,
+                                    ),
+                                    side: BorderSide(color: Colors.deepPurple)
+                                    // Adjust the radius as needed
+                                    ),
+                              ),
+                            ),
+                            onPressed: () {
+                              // Accept booking
+                              _updateEventState('approved');
+                            },
+                            child: Container(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check, color: Colors.green),
+                                    Text("  Accept"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          TextButton(
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      25.0,
+                                    ),
+                                    side: BorderSide(color: Colors.deepPurple)
+                                    // Adjust the radius as needed
+                                    ),
+                              ),
+                            ),
+                            onPressed: () {
+                              // reject booking
+                              _updateEventState('declined');
+                            },
+                            child: Container(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.close_rounded,
+                                        color: Colors.red),
+                                    Text("  Reject"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
               ),
             ),
     );
