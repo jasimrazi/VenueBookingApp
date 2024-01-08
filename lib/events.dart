@@ -64,8 +64,6 @@ class _AllEventsState extends State<AllEvents> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -230,6 +228,32 @@ class _AllEventsState extends State<AllEvents> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.keyboard_arrow_left,
+                                    ),
+                                    Text("  Go Back"),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
                         ],
                       ),
                   ],
