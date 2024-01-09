@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
         borderColor = Color(0xffFFE000); // Yellow
         break;
       case 'approved':
-        borderColor = Color(0xff23F420); // Green
+        borderColor = Color(0xff50C878); // Green
         break;
       case 'declined':
         borderColor = Color(0xffFF0505); // Red
@@ -265,8 +265,8 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     Container(
-                                      width: 90,
-                                      padding: EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 12),
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         border: Border.all(

@@ -259,6 +259,51 @@ class _BookingPageState extends State<BookingPage> {
                 SizedBox(
                   height: 20,
                 ),
+                if (showDatePicker)
+                  SizedBox(
+                    height: 180,
+                    child: ScrollDateTimePicker(
+                      itemExtent: 54,
+                      infiniteScroll: true,
+                      dateOption: DateTimePickerOption(
+                        dateFormat: DateFormat(
+                          'MMMM dd, yyyy',
+                        ),
+                        minDate: DateTime(2020, 1, 1),
+                        maxDate: DateTime(2040, 12, 31),
+                        initialDate: selectedDate,
+                      ),
+                      onChange: (datetime) => setState(() {
+                        selectedDate = datetime;
+                      }),
+                    ),
+                  ),
+                if (showTimePicker)
+                  SizedBox(
+                    height: 180,
+                    child: ScrollDateTimePicker(
+                      itemExtent: 54,
+                      infiniteScroll: true,
+                      dateOption: DateTimePickerOption(
+                        dateFormat: DateFormat('hh:mm a'),
+                        minDate: DateTime(2000, 1, 1, 0, 0),
+                        maxDate: DateTime(2000, 1, 1, 23, 59),
+                        initialDate: DateTime(
+                          2000,
+                          1,
+                          1,
+                          selectedTime.hour,
+                          selectedTime.minute,
+                        ),
+                      ),
+                      onChange: (datetime) => setState(() {
+                        selectedTime = TimeOfDay(
+                          hour: datetime.hour,
+                          minute: datetime.minute,
+                        );
+                      }),
+                    ),
+                  ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -370,42 +415,6 @@ class _BookingPageState extends State<BookingPage> {
                       },
                       child: Text('Go Back to Homepage')),
                 ),
-                if (showDatePicker)
-                  SizedBox(
-                    height: 250,
-                    child: ScrollDateTimePicker(
-                      itemExtent: 54,
-                      infiniteScroll: true,
-                      dateOption: DateTimePickerOption(
-                        dateFormat: DateFormat('yyyyMMMdd'),
-                        minDate: DateTime(2000, 6),
-                        maxDate: DateTime(2024, 6),
-                        initialDate: selectedDate,
-                      ),
-                      onChange: (datetime) => setState(() {
-                        selectedDate = datetime;
-                      }),
-                    ),
-                  ),
-                if (showTimePicker)
-                  SizedBox(
-                    height: 250,
-                    child: ScrollDateTimePicker(
-                      itemExtent: 54,
-                      infiniteScroll: true,
-                      dateOption: DateTimePickerOption(
-                        dateFormat: DateFormat('hh:mm a'),
-                        minDate: DateTime(2000, 6),
-                        maxDate: DateTime(2024, 6),
-                        initialDate: DateTime(
-                            2000, 6, 1, selectedTime.hour, selectedTime.minute),
-                      ),
-                      onChange: (datetime) => setState(() {
-                        selectedTime = TimeOfDay(
-                            hour: datetime.hour, minute: datetime.minute);
-                      }),
-                    ),
-                  ),
               ],
             ),
           ),
