@@ -50,10 +50,56 @@ class _BookingPageState extends State<BookingPage> {
     return await taskSnapshot.ref.getDownloadURL();
   }
 
+  Future<bool> hasDateAndTimeConflict() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('Bookings')
+          .where('state', isEqualTo: 'approved')
+          .get();
+
+      for (QueryDocumentSnapshot document in querySnapshot.docs) {
+        dynamic dateFromFirestore = document['date'];
+        DateTime eventDate;
+        if (dateFromFirestore is String) {
+          eventDate = DateFormat('MMMM dd, yyyy').parse(dateFromFirestore);
+        } else if (dateFromFirestore is Timestamp) {
+          eventDate = dateFromFirestore.toDate();
+        } else {
+          print('Unexpected date format in Firestore');
+          continue; // Skip this document
+        }
+
+        String eventTime = document['time'];
+
+        String formattedExistingDateTime =
+            "${DateFormat('MMMM dd, yyyy').format(eventDate)} $eventTime";
+        DateTime existingEventDateTime = DateFormat('MMMM dd, yyyy hh:mm a')
+            .parse(formattedExistingDateTime);
+
+        DateTime selectedDateTime = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          selectedTime.hour,
+          selectedTime.minute,
+        );
+
+        String existingVenue = document['venue'];
+        if (existingEventDateTime == selectedDateTime &&
+            existingVenue == selectedVenue) {
+          return true; // Conflict found
+        }
+      }
+      return false; // No conflict found
+    } catch (e) {
+      print('Error checking for conflicts: $e');
+      return true; // Consider it as a conflict to prevent accidental bookings
+    }
+  }
+
   bool _validateAndSave() {
     bool isValid = true;
 
-    // Validate and show error if the event name is empty
     if (_eventNameController.text.isEmpty) {
       setState(() {
         _isEventNameEmpty = false;
@@ -71,51 +117,60 @@ class _BookingPageState extends State<BookingPage> {
   Future<void> submitBooking() async {
     if (_validateAndSave()) {
       try {
-        User? user = _auth.currentUser;
+        bool hasConflict = await hasDateAndTimeConflict();
 
-        if (user != null) {
-          String userId = user.uid;
-          String userName = user.displayName ?? 'Unknown User';
-
-          // Format the date as month, day, and year
-          String formattedDate =
-              DateFormat('MMMM dd, yyyy').format(selectedDate);
-
-          // Get the current timestamp
-          Timestamp timestamp = Timestamp.now();
-
-          setState(() {
-            _isSubmitting = true; // Set loading state
-          });
-
-          await _firestore.collection('Bookings').add({
-            'eventName': _eventNameController.text,
-            'date': formattedDate,
-            'time': selectedTime.format(context),
-            'venue': selectedVenue,
-            'imageURL': _image != null ? await _uploadImage(userId) : null,
-            'userId': userId,
-            'userName': userName,
-            'state': 'pending',
-            'timestamp': timestamp
-          });
-
-          _eventNameController.clear();
-          setState(() {
-            _image = null;
-          });
-
+        if (hasConflict) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Booking submitted successfully!')),
+            SnackBar(
+              content: Text('Conflict with existing event!'),
+              backgroundColor: Colors.red,
+            ),
           );
         } else {
-          print('No user signed in.');
+          User? user = _auth.currentUser;
+
+          if (user != null) {
+            String userId = user.uid;
+            String userName = user.displayName ?? 'Unknown User';
+
+            String formattedDate =
+                DateFormat('MMMM dd, yyyy').format(selectedDate);
+
+            Timestamp timestamp = Timestamp.now();
+
+            setState(() {
+              _isSubmitting = true;
+            });
+
+            await _firestore.collection('Bookings').add({
+              'eventName': _eventNameController.text,
+              'date': formattedDate,
+              'time': selectedTime.format(context),
+              'venue': selectedVenue,
+              'imageURL': _image != null ? await _uploadImage(userId) : null,
+              'userId': userId,
+              'userName': userName,
+              'state': 'pending',
+              'timestamp': timestamp
+            });
+
+            _eventNameController.clear();
+            setState(() {
+              _image = null;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Booking submitted successfully!')),
+            );
+          } else {
+            print('No user signed in.');
+          }
         }
       } catch (e) {
         print('Error submitting booking: $e');
       } finally {
         setState(() {
-          _isSubmitting = false; // Reset the loading state
+          _isSubmitting = false;
         });
       }
     }
@@ -162,7 +217,6 @@ class _BookingPageState extends State<BookingPage> {
                       vertical: 15.0,
                       horizontal: 10.0,
                     ),
-                    // Show error message inside the event name TextField
                     errorText: _isEventNameEmpty
                         ? null
                         : 'Please enter the event name',
@@ -385,14 +439,11 @@ class _BookingPageState extends State<BookingPage> {
                   height: 20,
                 ),
                 Container(
-                  width: double
-                      .infinity, // Make the container fill the width of the page
-                  // Adjust horizontal padding
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: submitBooking,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 20.0), // Adjust vertical padding
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
                     ),
                     child: _isSubmitting
                         ? CircularProgressIndicator(
@@ -405,15 +456,16 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 Center(
                   child: TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomePage(),
-                          ),
-                        );
-                      },
-                      child: Text('Go Back to Homepage')),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(),
+                        ),
+                      );
+                    },
+                    child: Text('Go Back to Homepage'),
+                  ),
                 ),
               ],
             ),
