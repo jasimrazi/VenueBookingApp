@@ -16,7 +16,8 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _obscurePassword = true;
-  bool _loading = false;
+  bool _loading = false; // Loading state for email/password sign-in
+  bool _googleLoading = false; // Loading state for Google sign-in
   bool _isMounted = false;
 
   @override
@@ -49,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       setState(() {
-        _loading = true;
+        _googleLoading = true; // Set loading state for Google sign-in
       });
 
       final GoogleSignInAccount? googleSignInAccount =
@@ -96,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (_isMounted) {
         setState(() {
-          _loading = false;
+          _googleLoading = false; // Reset loading state for Google sign-in
         });
       }
     }
@@ -109,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       setState(() {
-        _loading = true;
+        _loading = true; // Set loading state for email/password sign-in
       });
 
       if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
@@ -152,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (_isMounted) {
         setState(() {
-          _loading = false;
+          _loading = false; // Reset loading state for email/password sign-in
         });
       }
     }

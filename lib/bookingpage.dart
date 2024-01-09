@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venuebooking/homepage.dart';
 
 class BookingPage extends StatefulWidget {
   BookingPage({super.key});
@@ -356,6 +357,18 @@ class _BookingPageState extends State<BookingPage> {
                           )
                         : Text('Submit'),
                   ),
+                ),
+                Center(
+                  child: TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePage(),
+                          ),
+                        );
+                      },
+                      child: Text('Go Back to Homepage')),
                 ),
                 if (showDatePicker)
                   SizedBox(
