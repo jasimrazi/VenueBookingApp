@@ -375,8 +375,10 @@ class _BookingPageState extends State<BookingPage> {
                       ),
                       alignment: Alignment.center,
                       child: DropdownButton<String>(
+                        elevation: 10,
+                        borderRadius: BorderRadius.circular(10.0),
                         value: selectedVenue,
-                        dropdownColor: Colors.deepPurple,
+                        dropdownColor: Colors.deepPurple.shade50,
                         onChanged: (String? newValue) {
                           setState(() {
                             selectedVenue = newValue!;
