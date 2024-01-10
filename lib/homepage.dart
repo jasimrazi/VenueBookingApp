@@ -157,6 +157,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                       )
                     : ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         itemCount: bookings.length,
                         itemBuilder: (context, index) {
                           var booking =
@@ -265,6 +266,7 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     Container(
+                                      width: 100,
                                       padding: EdgeInsets.symmetric(
                                           vertical: 8, horizontal: 12),
                                       alignment: Alignment.center,

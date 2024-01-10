@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venuebooking/homepage.dart';
 
 class BookingPage extends StatefulWidget {
-  BookingPage({super.key});
+  BookingPage({Key? key}) : super(key: key);
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -19,13 +19,17 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
+  TimeOfDay startTime = TimeOfDay(hour: 10, minute: 0);
+  TimeOfDay endTime = TimeOfDay(hour: 16, minute: 0);
   bool showDatePicker = false;
   bool showTimePicker = false;
+  bool showEndTimePicker = false;
+
   String selectedVenue = 'Audio Visual Theatre';
   File? _image;
   TextEditingController _eventNameController = TextEditingController();
   bool _isSubmitting = false;
-  bool _isEventNameEmpty = true; // Track if the event name is empty
+  bool _isEventNameEmpty = true;
 
   Future<void> _getImage() async {
     final picker = ImagePicker();
@@ -69,14 +73,38 @@ class _BookingPageState extends State<BookingPage> {
           continue; // Skip this document
         }
 
-        String eventTime = document['time'];
+        String existingVenue = document['venue'];
+        if (existingVenue != selectedVenue) {
+          continue; // Skip if venues are different
+        }
 
-        String formattedExistingDateTime =
-            "${DateFormat('MMMM dd, yyyy').format(eventDate)} $eventTime";
-        DateTime existingEventDateTime = DateFormat('MMMM dd, yyyy hh:mm a')
-            .parse(formattedExistingDateTime);
+        TimeOfDay existingStartTime = TimeOfDay(
+          hour: document['startHour'],
+          minute: document['startMinute'],
+        );
 
-        DateTime selectedDateTime = DateTime(
+        TimeOfDay existingEndTime = TimeOfDay(
+          hour: document['endHour'],
+          minute: document['endMinute'],
+        );
+
+        DateTime existingEventDateTimeStart = DateTime(
+          eventDate.year,
+          eventDate.month,
+          eventDate.day,
+          existingStartTime.hour,
+          existingStartTime.minute,
+        );
+
+        DateTime existingEventDateTimeEnd = DateTime(
+          eventDate.year,
+          eventDate.month,
+          eventDate.day,
+          existingEndTime.hour,
+          existingEndTime.minute,
+        );
+
+        DateTime selectedDateTimeStart = DateTime(
           selectedDate.year,
           selectedDate.month,
           selectedDate.day,
@@ -84,9 +112,16 @@ class _BookingPageState extends State<BookingPage> {
           selectedTime.minute,
         );
 
-        String existingVenue = document['venue'];
-        if (existingEventDateTime == selectedDateTime &&
-            existingVenue == selectedVenue) {
+        DateTime selectedDateTimeEnd = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          endTime.hour,
+          endTime.minute,
+        );
+
+        if (selectedDateTimeEnd.isAfter(existingEventDateTimeStart) &&
+            selectedDateTimeStart.isBefore(existingEventDateTimeEnd)) {
           return true; // Conflict found
         }
       }
@@ -142,10 +177,29 @@ class _BookingPageState extends State<BookingPage> {
               _isSubmitting = true;
             });
 
+            DateTime selectedDateTimeStart = DateTime(
+              selectedDate.year,
+              selectedDate.month,
+              selectedDate.day,
+              selectedTime.hour,
+              selectedTime.minute,
+            );
+
+            DateTime selectedDateTimeEnd = DateTime(
+              selectedDate.year,
+              selectedDate.month,
+              selectedDate.day,
+              endTime.hour,
+              endTime.minute,
+            );
+
             await _firestore.collection('Bookings').add({
               'eventName': _eventNameController.text,
               'date': formattedDate,
-              'time': selectedTime.format(context),
+              'startHour': selectedTime.hour,
+              'startMinute': selectedTime.minute,
+              'endHour': endTime.hour,
+              'endMinute': endTime.minute,
               'venue': selectedVenue,
               'imageURL': _image != null ? await _uploadImage(userId) : null,
               'userId': userId,
@@ -189,6 +243,7 @@ class _BookingPageState extends State<BookingPage> {
         setState(() {
           showDatePicker = false;
           showTimePicker = false;
+          showEndTimePicker = false;
         });
       },
       child: Scaffold(
@@ -244,17 +299,20 @@ class _BookingPageState extends State<BookingPage> {
                               setState(() {
                                 showDatePicker = !showDatePicker;
                                 showTimePicker = false;
+                                showEndTimePicker =
+                                    false; // Close end time picker when date is selected
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.all(12.0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.black38),
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                '${DateFormat('MMMM dd, yyyy').format(selectedDate)}',
+                                '${DateFormat('MMM dd, yyyy').format(selectedDate)}',
                                 style: TextStyle(
                                   fontSize: 15.0,
                                   fontWeight: FontWeight.w500,
@@ -274,7 +332,7 @@ class _BookingPageState extends State<BookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Time',
+                            'Start Time',
                             style: TextStyle(
                                 fontSize: 12, color: Colors.deepPurple),
                           ),
@@ -286,10 +344,13 @@ class _BookingPageState extends State<BookingPage> {
                               setState(() {
                                 showTimePicker = !showTimePicker;
                                 showDatePicker = false;
+                                showEndTimePicker =
+                                    false; // Close end time picker when start time is selected
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.all(12.0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 8),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.black38),
                                 borderRadius: BorderRadius.circular(10.0),
@@ -308,8 +369,87 @@ class _BookingPageState extends State<BookingPage> {
                         ],
                       ),
                     ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'End Time',
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.deepPurple),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                showEndTimePicker = !showEndTimePicker;
+                                showTimePicker = false;
+                                showDatePicker =
+                                    false; // Close date and time picker when end time is selected
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black38),
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${endTime.format(context)}',
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
+                if (showEndTimePicker)
+                  GestureDetector(
+                    onTap: () {
+                      // Close end time picker when tapped outside the picker
+                      setState(() {
+                        showEndTimePicker = false;
+                      });
+                    },
+                    child: SizedBox(
+                      height: 180,
+                      child: ScrollDateTimePicker(
+                        itemExtent: 54,
+                        infiniteScroll: true,
+                        dateOption: DateTimePickerOption(
+                          dateFormat: DateFormat('hh:mm a'),
+                          minDate: DateTime(2000, 1, 1, 0, 0),
+                          maxDate: DateTime(2000, 1, 1, 23, 59),
+                          initialDate: DateTime(
+                            2000,
+                            1,
+                            1,
+                            endTime.hour,
+                            endTime.minute,
+                          ),
+                        ),
+                        onChange: (datetime) => setState(() {
+                          endTime = TimeOfDay(
+                            hour: datetime.hour,
+                            minute: datetime.minute,
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
                 SizedBox(
                   height: 20,
                 ),
@@ -321,7 +461,7 @@ class _BookingPageState extends State<BookingPage> {
                       infiniteScroll: true,
                       dateOption: DateTimePickerOption(
                         dateFormat: DateFormat(
-                          'MMMM dd, yyyy',
+                          'MMM dd, yyyy',
                         ),
                         minDate: DateTime(2020, 1, 1),
                         maxDate: DateTime(2040, 12, 31),
