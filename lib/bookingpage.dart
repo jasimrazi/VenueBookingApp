@@ -19,7 +19,6 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  TimeOfDay startTime = TimeOfDay(hour: 10, minute: 0);
   TimeOfDay endTime = TimeOfDay(hour: 16, minute: 0);
   bool showDatePicker = false;
   bool showTimePicker = false;
@@ -193,6 +192,11 @@ class _BookingPageState extends State<BookingPage> {
               endTime.minute,
             );
 
+            String formattedStartTime =
+                DateFormat('hh:mm a').format(selectedDateTimeStart);
+            String formattedEndTime =
+                DateFormat('hh:mm a').format(selectedDateTimeEnd);
+
             await _firestore.collection('Bookings').add({
               'eventName': _eventNameController.text,
               'date': formattedDate,
@@ -201,6 +205,7 @@ class _BookingPageState extends State<BookingPage> {
               'endHour': endTime.hour,
               'endMinute': endTime.minute,
               'venue': selectedVenue,
+              'time': '$formattedStartTime - $formattedEndTime',
               'imageURL': _image != null ? await _uploadImage(userId) : null,
               'userId': userId,
               'userName': userName,
