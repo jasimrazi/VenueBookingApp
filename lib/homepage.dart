@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
 
     switch (status) {
       case 'pending':
-        borderColor = Color(0xffFFE000); // Yellow
+        borderColor = Color(0xffffcc55); // Yellow
         break;
       case 'approved':
         borderColor = Color(0xff50C878); // Green
