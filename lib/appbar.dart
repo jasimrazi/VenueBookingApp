@@ -8,7 +8,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-      title: Text('Venue Booking'),
+      title: Text('Eventify'),
       actions: [
         IconButton(
             onPressed: () {

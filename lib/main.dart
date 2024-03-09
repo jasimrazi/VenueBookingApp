@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:venuebooking/allevents.dart';
 import 'package:venuebooking/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         fontFamily: GoogleFonts.archivo().fontFamily,
         // useMaterial3: true,
       ),
-      home: HomePage(),
+      home: AllEvents(),
     );
   }
 }

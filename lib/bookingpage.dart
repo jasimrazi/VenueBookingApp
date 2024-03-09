@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
+import 'package:venuebooking/allevents.dart';
 import 'package:venuebooking/appbar.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +28,8 @@ class _BookingPageState extends State<BookingPage> {
   String selectedVenue = 'Audio Visual Theatre';
   File? _image;
   TextEditingController _eventNameController = TextEditingController();
+  TextEditingController _eventDescriptionController =
+      TextEditingController(); // Added
   bool _isSubmitting = false;
   bool _isEventNameEmpty = true;
 
@@ -199,6 +202,7 @@ class _BookingPageState extends State<BookingPage> {
 
             await _firestore.collection('Bookings').add({
               'eventName': _eventNameController.text,
+              'eventDescription': _eventDescriptionController.text, // Added
               'date': formattedDate,
               'startHour': selectedTime.hour,
               'startMinute': selectedTime.minute,
@@ -214,6 +218,7 @@ class _BookingPageState extends State<BookingPage> {
             });
 
             _eventNameController.clear();
+            _eventDescriptionController.clear(); // Added
             setState(() {
               _image = null;
             });
@@ -238,6 +243,7 @@ class _BookingPageState extends State<BookingPage> {
   @override
   void dispose() {
     _eventNameController.dispose();
+    _eventDescriptionController.dispose(); // Added
     super.dispose();
   }
 
@@ -283,6 +289,32 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                 ),
                 SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  // Added
+                  'Event Description',
+                  style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                TextField(
+                  // Added
+                  controller: _eventDescriptionController,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 10.0,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  // Added
                   height: 20,
                 ),
                 Row(
@@ -607,7 +639,8 @@ class _BookingPageState extends State<BookingPage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePage(),
+                          builder: (context) =>
+                              AllEvents(), // Navigate to AllEvents page
                         ),
                       );
                     },
