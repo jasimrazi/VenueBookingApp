@@ -1,8 +1,9 @@
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:venuebooking/appbar.dart';
 import 'package:venuebooking/bookingpage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:venuebooking/drawer.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key});
@@ -144,99 +145,107 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Register",
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 25,
-                    color: Colors.deepPurple),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                controller: emailController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  hintText: 'E-mail',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  errorText: _emailError.isNotEmpty ? _emailError : null,
+      appBar: AppBar(
+        title: Text('Register'),
+      ),
+      drawer: MyDrawer(),
+      body: DoubleBackToCloseApp(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Register",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 25,
+                      color: Colors.deepPurple),
                 ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextField(
-                keyboardType: TextInputType.visiblePassword,
-                controller: passwordController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  hintText: 'Password',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  errorText: _passwordError.isNotEmpty ? _passwordError : null,
+                SizedBox(
+                  height: 15,
                 ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextField(
-                controller: confirmPasswordController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    hintText: 'E-mail',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    errorText: _emailError.isNotEmpty ? _emailError : null,
                   ),
-                  hintText: 'Confirm password',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  errorText: _confirmPasswordError.isNotEmpty
-                      ? _confirmPasswordError
-                      : null,
                 ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              ElevatedButton(
-                onPressed: _signUp,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  child: _loading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                  keyboardType: TextInputType.visiblePassword,
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    hintText: 'Password',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    errorText: _passwordError.isNotEmpty ? _passwordError : null,
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                  controller: confirmPasswordController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    hintText: 'Confirm password',
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    errorText: _confirmPasswordError.isNotEmpty
+                        ? _confirmPasswordError
+                        : null,
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                ElevatedButton(
+                  onPressed: _signUp,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: _loading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.white,
                             ),
                           ),
-                        )
-                      : Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Colors.white,
-                          ),
-                        ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+        snackBar: SnackBar(
+          content: Text('Tap back again to leave'),
         ),
       ),
     );

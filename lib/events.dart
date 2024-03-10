@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:venuebooking/drawer.dart';
 import 'package:venuebooking/homepage.dart';
 
 class AllEvents extends StatefulWidget {
@@ -70,6 +71,7 @@ class _AllEventsState extends State<AllEvents> {
       appBar: AppBar(
         title: Text('Event Details'),
       ),
+      drawer: MyDrawer(),
       body: eventData.isEmpty
           ? Center(child: CircularProgressIndicator())
           : Padding(

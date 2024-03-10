@@ -1,4 +1,6 @@
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
+import 'package:venuebooking/drawer.dart';
 
 class AllEventsDetails extends StatelessWidget {
   final String? eventName;
@@ -22,6 +24,7 @@ class AllEventsDetails extends StatelessWidget {
       appBar: AppBar(
         title: Text('Event Details'),
       ),
+      drawer: MyDrawer(),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(

@@ -46,6 +46,7 @@ dependencies:
   photo_view: ^0.14.0
   google_fonts: ^6.1.0
   flutter_slidable: ^3.0.1
+  double_back_to_close_app: ^2.1.0
 
 dev_dependencies:
   flutter_test:

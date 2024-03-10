@@ -1,15 +1,26 @@
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:venuebooking/appbar.dart';
+import 'package:venuebooking/drawer.dart';
+import 'package:venuebooking/homepage.dart';
 import 'package:venuebooking/loginstatus.dart';
-import 'package:venuebooking/alleventsdetails.dart'; // Import the AllEventsDetails page
+import 'package:venuebooking/alleventsdetails.dart';
+import 'package:venuebooking/profile.dart'; // Import the AllEventsDetails page
 
 class AllEvents extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(),
-      body: ApprovedEventsList(),
+      appBar: AppBar(
+        title: Text('EVENTIFY'),
+      ),
+      drawer: MyDrawer(),
+      body: DoubleBackToCloseApp(
+        child: ApprovedEventsList(),
+        snackBar: const SnackBar(
+          content: Text('Tap back again to leave'),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           await Navigator.push(
@@ -40,6 +51,7 @@ class ApprovedEventsList extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('Bookings')
           .where('state', isEqualTo: 'approved')
+          .orderBy('date', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

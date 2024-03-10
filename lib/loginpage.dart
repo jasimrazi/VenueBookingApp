@@ -1,8 +1,10 @@
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:venuebooking/appbar.dart';
 import 'package:venuebooking/bookingpage.dart';
+import 'package:venuebooking/drawer.dart';
 import 'package:venuebooking/registerpage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -91,6 +93,14 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         _showSnackBar('Sign-in failed');
       }
+    } on PlatformException catch (e) {
+      if (e.code == 'sign_in_canceled') {
+        // User canceled the Google sign-in
+        _showSnackBar('Google sign-in canceled');
+      } else {
+        print('Google Sign-In Error: $e');
+        _showSnackBar('Error during sign-in');
+      }
     } catch (error) {
       print('Google Sign-In Error: $error');
       _showSnackBar('Error during sign-in');
@@ -102,6 +112,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
@@ -162,125 +173,133 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Log in",
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 25,
-                    color: Colors.deepPurple),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextField(
-                controller: usernameController,
-                decoration: InputDecoration(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      drawer: MyDrawer(),
+      body: DoubleBackToCloseApp(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Log in",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 25,
+                      color: Colors.deepPurple),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                TextField(
+                  controller: usernameController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12))),
+                      hintText: 'username',
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 10)),
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                TextFormField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12))),
-                    hintText: 'username',
+                    hintText: 'password',
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 15, vertical: 10)),
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12))),
-                  hintText: 'password',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    child: Icon(
-                      _obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                  ),
-                ),
-                obscureText: _obscurePassword,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterPage(),
-                        )),
-                    child: Text(
-                      "Register Now",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _signInWithEmailAndPassword,
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
+                        EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                      child: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.deepPurple),
                     ),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      child: _loading
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                  ),
+                  obscureText: _obscurePassword,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterPage(),
+                          )),
+                      child: Text(
+                        "Register Now",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: _signInWithEmailAndPassword,
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.deepPurple),
+                      ),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        child: _loading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                "Sign in",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
                                 ),
                               ),
-                            )
-                          : Text(
-                              "Sign in",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              Text("OR"),
-              SizedBox(
-                height: 12,
-              ),
-              OutlinedButton(
-                onPressed: _handleSignIn,
-                child: Text('Sign In with Google'),
-              ),
-            ],
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                Text("OR"),
+                SizedBox(
+                  height: 12,
+                ),
+                OutlinedButton(
+                  onPressed: _handleSignIn,
+                  child: Text('Sign In with Google'),
+                ),
+              ],
+            ),
           ),
+        ),
+        snackBar: SnackBar(
+          content: Text('Tap back again to leave'),
         ),
       ),
     );

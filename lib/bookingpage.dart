@@ -1,13 +1,14 @@
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:venuebooking/allevents.dart';
-import 'package:venuebooking/appbar.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venuebooking/drawer.dart';
 import 'package:venuebooking/homepage.dart';
 
 class BookingPage extends StatefulWidget {
@@ -258,210 +259,263 @@ class _BookingPageState extends State<BookingPage> {
         });
       },
       child: Scaffold(
-        appBar: MyAppBar(),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Event Name',
-                  style: TextStyle(fontSize: 12, color: Colors.deepPurple),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                TextField(
-                  controller: _eventNameController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 15.0,
-                      horizontal: 10.0,
-                    ),
-                    errorText: _isEventNameEmpty
-                        ? null
-                        : 'Please enter the event name',
+        appBar: AppBar(
+          title: Text('Booking Page'),
+        ),
+        drawer: MyDrawer(),
+        body: DoubleBackToCloseApp(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Event Name',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  // Added
-                  'Event Description',
-                  style: TextStyle(fontSize: 12, color: Colors.deepPurple),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                TextField(
-                  // Added
-                  controller: _eventDescriptionController,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 15.0,
-                      horizontal: 10.0,
+                  SizedBox(
+                    height: 8,
+                  ),
+                  TextField(
+                    controller: _eventNameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 10.0,
+                      ),
+                      errorText: _isEventNameEmpty
+                          ? null
+                          : 'Please enter the event name',
                     ),
                   ),
-                ),
-                SizedBox(
-                  // Added
-                  height: 20,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Date',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.deepPurple),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showDatePicker = !showDatePicker;
-                                showTimePicker = false;
-                                showEndTimePicker =
-                                    false; // Close end time picker when date is selected
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black38),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${DateFormat('MMM dd, yyyy').format(selectedDate)}',
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.deepPurple,
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    // Added
+                    'Event Description',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  TextField(
+                    // Added
+                    controller: _eventDescriptionController,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 10.0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    // Added
+                    height: 20,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Date',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.deepPurple),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  showDatePicker = !showDatePicker;
+                                  showTimePicker = false;
+                                  showEndTimePicker =
+                                      false; // Close end time picker when date is selected
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black38),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${DateFormat('MMM dd, yyyy').format(selectedDate)}',
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Start Time',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.deepPurple),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  showTimePicker = !showTimePicker;
+                                  showDatePicker = false;
+                                  showEndTimePicker =
+                                      false; // Close end time picker when start time is selected
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black38),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${selectedTime.format(context)}',
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'End Time',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.deepPurple),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  showEndTimePicker = !showEndTimePicker;
+                                  showTimePicker = false;
+                                  showDatePicker =
+                                      false; // Close date and time picker when end time is selected
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black38),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${endTime.format(context)}',
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (showEndTimePicker)
+                    GestureDetector(
+                      onTap: () {
+                        // Close end time picker when tapped outside the picker
+                        setState(() {
+                          showEndTimePicker = false;
+                        });
+                      },
+                      child: SizedBox(
+                        height: 180,
+                        child: ScrollDateTimePicker(
+                          itemExtent: 54,
+                          infiniteScroll: true,
+                          dateOption: DateTimePickerOption(
+                            dateFormat: DateFormat('hh:mm a'),
+                            minDate: DateTime(2000, 1, 1, 0, 0),
+                            maxDate: DateTime(2000, 1, 1, 23, 59),
+                            initialDate: DateTime(
+                              2000,
+                              1,
+                              1,
+                              endTime.hour,
+                              endTime.minute,
+                            ),
                           ),
-                        ],
+                          onChange: (datetime) => setState(() {
+                            endTime = TimeOfDay(
+                              hour: datetime.hour,
+                              minute: datetime.minute,
+                            );
+                          }),
+                        ),
                       ),
                     ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  if (showDatePicker)
                     SizedBox(
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Start Time',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.deepPurple),
+                      height: 180,
+                      child: ScrollDateTimePicker(
+                        itemExtent: 54,
+                        infiniteScroll: true,
+                        dateOption: DateTimePickerOption(
+                          dateFormat: DateFormat(
+                            'MMM dd, yyyy',
                           ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showTimePicker = !showTimePicker;
-                                showDatePicker = false;
-                                showEndTimePicker =
-                                    false; // Close end time picker when start time is selected
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black38),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${selectedTime.format(context)}',
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                          minDate: DateTime(2020, 1, 1),
+                          maxDate: DateTime(2040, 12, 31),
+                          initialDate: selectedDate,
+                        ),
+                        onChange: (datetime) => setState(() {
+                          selectedDate = datetime;
+                        }),
                       ),
                     ),
+                  if (showTimePicker)
                     SizedBox(
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'End Time',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.deepPurple),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                showEndTimePicker = !showEndTimePicker;
-                                showTimePicker = false;
-                                showDatePicker =
-                                    false; // Close date and time picker when end time is selected
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black38),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${endTime.format(context)}',
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                if (showEndTimePicker)
-                  GestureDetector(
-                    onTap: () {
-                      // Close end time picker when tapped outside the picker
-                      setState(() {
-                        showEndTimePicker = false;
-                      });
-                    },
-                    child: SizedBox(
                       height: 180,
                       child: ScrollDateTimePicker(
                         itemExtent: 54,
@@ -474,181 +528,136 @@ class _BookingPageState extends State<BookingPage> {
                             2000,
                             1,
                             1,
-                            endTime.hour,
-                            endTime.minute,
+                            selectedTime.hour,
+                            selectedTime.minute,
                           ),
                         ),
                         onChange: (datetime) => setState(() {
-                          endTime = TimeOfDay(
+                          selectedTime = TimeOfDay(
                             hour: datetime.hour,
                             minute: datetime.minute,
                           );
                         }),
                       ),
                     ),
-                  ),
-                SizedBox(
-                  height: 20,
-                ),
-                if (showDatePicker)
-                  SizedBox(
-                    height: 180,
-                    child: ScrollDateTimePicker(
-                      itemExtent: 54,
-                      infiniteScroll: true,
-                      dateOption: DateTimePickerOption(
-                        dateFormat: DateFormat(
-                          'MMM dd, yyyy',
-                        ),
-                        minDate: DateTime(2020, 1, 1),
-                        maxDate: DateTime(2040, 12, 31),
-                        initialDate: selectedDate,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Venue',
+                        style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                       ),
-                      onChange: (datetime) => setState(() {
-                        selectedDate = datetime;
-                      }),
-                    ),
-                  ),
-                if (showTimePicker)
-                  SizedBox(
-                    height: 180,
-                    child: ScrollDateTimePicker(
-                      itemExtent: 54,
-                      infiniteScroll: true,
-                      dateOption: DateTimePickerOption(
-                        dateFormat: DateFormat('hh:mm a'),
-                        minDate: DateTime(2000, 1, 1, 0, 0),
-                        maxDate: DateTime(2000, 1, 1, 23, 59),
-                        initialDate: DateTime(
-                          2000,
-                          1,
-                          1,
-                          selectedTime.hour,
-                          selectedTime.minute,
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black38),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        alignment: Alignment.center,
+                        child: DropdownButton<String>(
+                          elevation: 10,
+                          borderRadius: BorderRadius.circular(10.0),
+                          value: selectedVenue,
+                          dropdownColor: Colors.deepPurple.shade50,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedVenue = newValue!;
+                            });
+                          },
+                          items: <String>[
+                            'Audio Visual Theatre',
+                            'Seminar Hall',
+                            'Auditorium',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          icon: Icon(
+                            Icons.unfold_more,
+                            color: Colors.deepPurple,
+                          ),
+                          iconSize: 24,
+                          underline: SizedBox(),
                         ),
                       ),
-                      onChange: (datetime) => setState(() {
-                        selectedTime = TimeOfDay(
-                          hour: datetime.hour,
-                          minute: datetime.minute,
-                        );
-                      }),
-                    ),
+                    ],
                   ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Venue',
-                      style: TextStyle(fontSize: 12, color: Colors.deepPurple),
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Container(
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    'Image Upload',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  GestureDetector(
+                    onTap: _getImage,
+                    child: Container(
+                      padding: EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black38),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       alignment: Alignment.center,
-                      child: DropdownButton<String>(
-                        elevation: 10,
-                        borderRadius: BorderRadius.circular(10.0),
-                        value: selectedVenue,
-                        dropdownColor: Colors.deepPurple.shade50,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedVenue = newValue!;
-                          });
-                        },
-                        items: <String>[
-                          'Audio Visual Theatre',
-                          'Seminar Hall',
-                          'Auditorium',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        icon: Icon(
-                          Icons.unfold_more,
-                          color: Colors.deepPurple,
-                        ),
-                        iconSize: 24,
-                        underline: SizedBox(),
+                      child: _image == null
+                          ? Icon(
+                              Icons.add_circle_outline,
+                              size: 40,
+                              color: Colors.deepPurple,
+                            )
+                          : Image.file(
+                              _image!,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: submitBooking,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 20.0),
                       ),
+                      child: _isSubmitting
+                          ? CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              backgroundColor: Colors.deepPurpleAccent,
+                            )
+                          : Text('Submit'),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Image Upload',
-                  style: TextStyle(fontSize: 12, color: Colors.deepPurple),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                GestureDetector(
-                  onTap: _getImage,
-                  child: Container(
-                    padding: EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black38),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    alignment: Alignment.center,
-                    child: _image == null
-                        ? Icon(
-                            Icons.add_circle_outline,
-                            size: 40,
-                            color: Colors.deepPurple,
-                          )
-                        : Image.file(
-                            _image!,
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover,
+                  ),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AllEvents(), // Navigate to AllEvents page
                           ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: submitBooking,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                        );
+                      },
+                      child: Text('Go Back to Homepage'),
                     ),
-                    child: _isSubmitting
-                        ? CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                            backgroundColor: Colors.deepPurpleAccent,
-                          )
-                        : Text('Submit'),
                   ),
-                ),
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AllEvents(), // Navigate to AllEvents page
-                        ),
-                      );
-                    },
-                    child: Text('Go Back to Homepage'),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+          ),
+          snackBar: SnackBar(
+            content: Text('Tap back again to leave'),
           ),
         ),
       ),
