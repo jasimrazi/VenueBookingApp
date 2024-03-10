@@ -12,7 +12,7 @@ class AllEvents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('EVENTIFY'),
+        title: Text('BOOKIFY'),
       ),
       drawer: MyDrawer(),
       body: DoubleBackToCloseApp(
@@ -77,11 +77,13 @@ class ApprovedEventsList extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => AllEventsDetails(
+                      eventId: documents[index].id, 
                       eventName: data['eventName'],
-                      description: data['description'],
+                      description: data['eventDescription'],
                       date: data['date'],
                       time: data['time'],
                       venue: data['venue'],
+                      link: data['registerlink'],
                     ),
                   ),
                 );

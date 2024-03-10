@@ -31,8 +31,11 @@ class _BookingPageState extends State<BookingPage> {
   TextEditingController _eventNameController = TextEditingController();
   TextEditingController _eventDescriptionController =
       TextEditingController(); // Added
+  TextEditingController _registerLinkController =
+      TextEditingController(); // Added
   bool _isSubmitting = false;
   bool _isEventNameEmpty = true;
+  File? _posterImage; // Added
 
   Future<void> _getImage() async {
     final picker = ImagePicker();
@@ -45,6 +48,17 @@ class _BookingPageState extends State<BookingPage> {
     });
   }
 
+  Future<void> _getPosterImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _posterImage = File(pickedFile.path);
+      }
+    });
+  }
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -53,6 +67,15 @@ class _BookingPageState extends State<BookingPage> {
     Reference storageReference =
         FirebaseStorage.instance.ref().child('user_images/$userId/$fileName');
     UploadTask uploadTask = storageReference.putFile(_image!);
+    TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+    return await taskSnapshot.ref.getDownloadURL();
+  }
+
+  Future<String> _uploadPoster(String userId) async {
+    String fileName = 'poster_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    Reference storageReference =
+        FirebaseStorage.instance.ref().child('event_posters/$userId/$fileName');
+    UploadTask uploadTask = storageReference.putFile(_posterImage!);
     TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
     return await taskSnapshot.ref.getDownloadURL();
   }
@@ -203,7 +226,7 @@ class _BookingPageState extends State<BookingPage> {
 
             await _firestore.collection('Bookings').add({
               'eventName': _eventNameController.text,
-              'eventDescription': _eventDescriptionController.text, // Added
+              'eventDescription': _eventDescriptionController.text,
               'date': formattedDate,
               'startHour': selectedTime.hour,
               'startMinute': selectedTime.minute,
@@ -212,6 +235,9 @@ class _BookingPageState extends State<BookingPage> {
               'venue': selectedVenue,
               'time': '$formattedStartTime - $formattedEndTime',
               'imageURL': _image != null ? await _uploadImage(userId) : null,
+              'registerlink': _registerLinkController.text,
+              'poster':
+                  _posterImage != null ? await _uploadPoster(userId) : null,
               'userId': userId,
               'userName': userName,
               'state': 'pending',
@@ -219,9 +245,11 @@ class _BookingPageState extends State<BookingPage> {
             });
 
             _eventNameController.clear();
-            _eventDescriptionController.clear(); // Added
+            _eventDescriptionController.clear();
+            _registerLinkController.clear();
             setState(() {
               _image = null;
+              _posterImage = null;
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
@@ -244,7 +272,8 @@ class _BookingPageState extends State<BookingPage> {
   @override
   void dispose() {
     _eventNameController.dispose();
-    _eventDescriptionController.dispose(); // Added
+    _eventDescriptionController.dispose();
+    _registerLinkController.dispose();
     super.dispose();
   }
 
@@ -275,9 +304,7 @@ class _BookingPageState extends State<BookingPage> {
                     'Event Name',
                     style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                   ),
-                  SizedBox(
-                    height: 8,
-                  ),
+                  SizedBox(height: 8),
                   TextField(
                     controller: _eventNameController,
                     decoration: InputDecoration(
@@ -293,19 +320,13 @@ class _BookingPageState extends State<BookingPage> {
                           : 'Please enter the event name',
                     ),
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Text(
-                    // Added
                     'Event Description',
                     style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                   ),
-                  SizedBox(
-                    height: 8,
-                  ),
+                  SizedBox(height: 8),
                   TextField(
-                    // Added
                     controller: _eventDescriptionController,
                     maxLines: null,
                     decoration: InputDecoration(
@@ -318,10 +339,7 @@ class _BookingPageState extends State<BookingPage> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    // Added
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -333,16 +351,13 @@ class _BookingPageState extends State<BookingPage> {
                               style: TextStyle(
                                   fontSize: 12, color: Colors.deepPurple),
                             ),
-                            SizedBox(
-                              height: 8,
-                            ),
+                            SizedBox(height: 8),
                             GestureDetector(
                               onTap: () {
                                 setState(() {
                                   showDatePicker = !showDatePicker;
                                   showTimePicker = false;
-                                  showEndTimePicker =
-                                      false; // Close end time picker when date is selected
+                                  showEndTimePicker = false;
                                 });
                               },
                               child: Container(
@@ -366,9 +381,7 @@ class _BookingPageState extends State<BookingPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        width: 20,
-                      ),
+                      SizedBox(width: 20),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,16 +391,13 @@ class _BookingPageState extends State<BookingPage> {
                               style: TextStyle(
                                   fontSize: 12, color: Colors.deepPurple),
                             ),
-                            SizedBox(
-                              height: 8,
-                            ),
+                            SizedBox(height: 8),
                             GestureDetector(
                               onTap: () {
                                 setState(() {
                                   showTimePicker = !showTimePicker;
                                   showDatePicker = false;
-                                  showEndTimePicker =
-                                      false; // Close end time picker when start time is selected
+                                  showEndTimePicker = false;
                                 });
                               },
                               child: Container(
@@ -411,9 +421,7 @@ class _BookingPageState extends State<BookingPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        width: 20,
-                      ),
+                      SizedBox(width: 20),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,16 +431,13 @@ class _BookingPageState extends State<BookingPage> {
                               style: TextStyle(
                                   fontSize: 12, color: Colors.deepPurple),
                             ),
-                            SizedBox(
-                              height: 8,
-                            ),
+                            SizedBox(height: 8),
                             GestureDetector(
                               onTap: () {
                                 setState(() {
                                   showEndTimePicker = !showEndTimePicker;
                                   showTimePicker = false;
-                                  showDatePicker =
-                                      false; // Close date and time picker when end time is selected
+                                  showDatePicker = false;
                                 });
                               },
                               child: Container(
@@ -461,7 +466,6 @@ class _BookingPageState extends State<BookingPage> {
                   if (showEndTimePicker)
                     GestureDetector(
                       onTap: () {
-                        // Close end time picker when tapped outside the picker
                         setState(() {
                           showEndTimePicker = false;
                         });
@@ -492,9 +496,7 @@ class _BookingPageState extends State<BookingPage> {
                         ),
                       ),
                     ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   if (showDatePicker)
                     SizedBox(
                       height: 180,
@@ -502,9 +504,7 @@ class _BookingPageState extends State<BookingPage> {
                         itemExtent: 54,
                         infiniteScroll: true,
                         dateOption: DateTimePickerOption(
-                          dateFormat: DateFormat(
-                            'MMM dd, yyyy',
-                          ),
+                          dateFormat: DateFormat('MMM dd, yyyy'),
                           minDate: DateTime(2020, 1, 1),
                           maxDate: DateTime(2040, 12, 31),
                           initialDate: selectedDate,
@@ -545,11 +545,10 @@ class _BookingPageState extends State<BookingPage> {
                     children: [
                       Text(
                         'Venue',
-                        style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.deepPurple),
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
+                      SizedBox(height: 8),
                       Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black38),
@@ -586,16 +585,30 @@ class _BookingPageState extends State<BookingPage> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                   Text(
-                    'Image Upload',
+                    'Link to Register',
                     style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                   ),
-                  SizedBox(
-                    height: 8,
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: _registerLinkController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 15.0,
+                        horizontal: 10.0,
+                      ),
+                    ),
                   ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Permission Upload',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
+                  ),
+                  SizedBox(height: 8),
                   GestureDetector(
                     onTap: _getImage,
                     child: Container(
@@ -619,9 +632,36 @@ class _BookingPageState extends State<BookingPage> {
                             ),
                     ),
                   ),
-                  SizedBox(
-                    height: 20,
+                  SizedBox(height: 20),
+                  Text(
+                    'Event Poster',
+                    style: TextStyle(fontSize: 12, color: Colors.deepPurple),
                   ),
+                  SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _getPosterImage,
+                    child: Container(
+                      padding: EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black38),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      alignment: Alignment.center,
+                      child: _posterImage == null
+                          ? Icon(
+                              Icons.add_circle_outline,
+                              size: 40,
+                              color: Colors.deepPurple,
+                            )
+                          : Image.file(
+                              _posterImage!,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
                   Container(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -644,8 +684,7 @@ class _BookingPageState extends State<BookingPage> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                AllEvents(), // Navigate to AllEvents page
+                            builder: (context) => AllEvents(),
                           ),
                         );
                       },

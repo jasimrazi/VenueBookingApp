@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.venuebooking"
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 34 // Update to the desired compileSdkVersion
+    ndkVersion "23.0.7599858" // Update to the desired ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
